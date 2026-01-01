@@ -1,0 +1,413 @@
+package com.bagas.obrol.ui.components
+
+import android.content.Context
+import android.net.Uri
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.bagas.obrol.R
+import kotlinx.coroutines.delay
+import java.io.File
+import java.io.FileOutputStream
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TextMessageInput(
+    isTyping: Boolean,
+    textFieldValue: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    onSendTextMessage: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (isTyping) {
+        Spacer(modifier = Modifier.size(2.dp))
+    }
+
+    TextField(
+        value = textFieldValue,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                "Ketik pesan...",
+                fontSize = 14.sp,
+            )
+        },
+        textStyle = TextStyle(
+            fontSize = 14.sp
+        ),
+        shape = RoundedCornerShape(70.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            cursorColor = Color.Black,
+            disabledLabelColor = Color.Transparent,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        modifier = modifier
+    )
+
+    if (isTyping) {
+        SendButton(onClick = {
+            onSendTextMessage(textFieldValue.text)
+            onValueChange(TextFieldValue())
+        })
+    }
+}
+
+@Composable
+fun AudioRecordingControls(
+    isRecording: Boolean,
+    onStartRecording: () -> Unit,
+    onStopRecording: () -> Unit,
+    onCancelRecording: () -> Unit,
+    onSendAudioMessage: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var recordingTime by remember { mutableStateOf(0L) }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 700),
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
+    )
+
+    if (isRecording) {
+        LaunchedEffect(Unit) {
+            while (isRecording) {
+                delay(1000L)
+                recordingTime += 1000L
+            }
+        }
+    } else {
+        recordingTime = 0L
+    }
+
+    val formattedTime = remember(recordingTime) {
+        val minutes = (recordingTime / 60000).toString().padStart(2, '0')
+        val seconds = ((recordingTime / 1000) % 60).toString().padStart(2, '0')
+        "$minutes:$seconds"
+    }
+
+    if (isRecording) {
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.size(16.dp))
+            Column(
+                modifier = Modifier
+                    .size(10.dp)
+                    .clip(CircleShape)
+                    .background(Color.Red.copy(alpha = alpha))
+            ) {}
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(formattedTime, color = Color.Red)
+            Spacer(modifier = Modifier.size(2.dp))
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = {
+                    onCancelRecording()
+                },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Batalkan rekaman",
+                    tint = Color.Red
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    onStopRecording()
+                    onSendAudioMessage()
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
+                    )
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow_up),
+                    contentDescription = "Kirim",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
+                )
+            }
+        }
+
+    } else {
+        IconButton(
+            onClick = { onStartRecording() },
+            modifier = modifier
+                .size(48.dp)
+                .padding(2.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.mic_24px),
+                contentDescription = "Mulai merekam",
+                modifier = Modifier
+                    .size(24.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
+}
+
+
+@Composable
+fun FileMessageInput(
+    fileUri: Uri?,
+    onClick: () -> Unit,
+    onSendFile: (Uri) -> Unit,
+    onDeleteFile: (Uri) -> Unit
+) {
+    if (fileUri == null) {
+        IconButton(
+            onClick = { onClick() },
+            modifier = Modifier
+                .padding(2.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.add),
+                contentDescription = "Lampirkan berkas",
+                modifier = Modifier
+                    .size(24.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    } else {
+        // Explicitly cast to Uri since we are in the else block where fileUri is not null
+        val safeUri: Uri = fileUri
+        
+        val context = LocalContext.current
+        val mimeType = context.contentResolver.getType(safeUri) ?: "application/octet-stream"
+
+        val fileName =
+            context.contentResolver.query(safeUri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                cursor.moveToFirst()
+                cursor.getString(nameIndex)
+            } ?: "Tidak Dikenal"
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+
+            when {
+                mimeType.startsWith("image/") -> ImagePreview(safeUri)
+                mimeType.startsWith("video/") -> VideoPreview(safeUri)
+                mimeType.startsWith("application/pdf") -> {
+                    // pdfUriToUse must be initialized as Uri. Initialize with safeUri.
+                    var pdfUriToUse: Uri = safeUri
+                    try {
+                        val tempFile = getFileFromContentUri(context, safeUri)
+                        pdfUriToUse = Uri.fromFile(tempFile)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                    
+                    PdfPreview(
+                        fileUri = pdfUriToUse,
+                        filename = fileName,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                else -> GenericFilePreview(safeUri)
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        onDeleteFile(safeUri)
+                    },
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Hapus",
+                        tint = Color.Red
+                    )
+                }
+
+                SendButton(onClick = { onSendFile(safeUri) })
+            }
+        }
+    }
+}
+
+@Composable
+fun getPreviewPainter(fileUri: Uri): Painter {
+    return rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = fileUri).apply(block = fun ImageRequest.Builder.() {
+            crossfade(true)
+            error(R.drawable.error_24px)
+        }).build()
+    )
+}
+
+@Composable
+fun ImagePreview(fileUri: Uri) {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = fileUri).apply(block = fun ImageRequest.Builder.() {
+            crossfade(true)
+            error(R.drawable.error_24px)
+        }).build()
+    )
+    Image(
+        painter = painter,
+        contentDescription = "Pratinjau Gambar",
+        modifier = Modifier
+            .size(70.dp)
+            .padding(end = 16.dp)
+    )
+}
+
+@Composable
+fun VideoPreview(videoUri: Uri) {
+    VideoThumbnail(
+        videoUri = videoUri,
+        modifier = Modifier.size(70.dp),
+        thumbnailHeight = 70.dp
+    )
+}
+
+@Composable
+fun GenericFilePreview(fileUri: Uri) {
+    Image(
+        painter = painterResource(id = R.drawable.description_24px),
+        contentDescription = "Pratinjau Berkas",
+        modifier = Modifier
+            .size(70.dp)
+            .padding(end = 16.dp)
+    )
+    Text(
+        text = fileUri.lastPathSegment ?: "Berkas Tidak Dikenal",
+        color = Color.Black,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+fun PdfPreview(
+    fileUri: Uri,
+    modifier: Modifier = Modifier,
+    mine: Boolean? = false,
+    filename: String? = null
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PdfFirstPageViewer(
+            uri = fileUri,
+            imageWidth = 50.dp,
+            imageHeight = 50.dp
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(
+            text = filename ?: fileUri.lastPathSegment ?: "Berkas Tidak Dikenal",
+            color = if (mine == true) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+fun getFileFromContentUri(context: Context, uri: Uri): File {
+    val inputStream = context.contentResolver.openInputStream(uri) ?: throw java.io.IOException("Could not open stream for $uri")
+    val tempFile = File(context.cacheDir, "tempfile_${System.currentTimeMillis()}.pdf")
+    inputStream.use { input ->
+        FileOutputStream(tempFile).use { output ->
+            input.copyTo(output)
+        }
+    }
+    return tempFile
+}
+
+
+@Composable
+fun SendButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = { onClick() },
+        modifier = modifier
+            .size(48.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            )
+            .padding(8.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.arrow_up),
+            contentDescription = "Kirim",
+            modifier = Modifier
+                .size(24.dp),
+            tint = Color.White,
+        )
+    }
+}

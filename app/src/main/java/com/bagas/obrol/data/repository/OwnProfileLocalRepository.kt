@@ -1,0 +1,36 @@
+package com.bagas.obrol.data.repository
+
+import androidx.datastore.core.DataStore
+import com.bagas.obrol.data.local.profile.ProfileEntity
+import com.bagas.obrol.domain.model.device.Profile
+import com.bagas.obrol.domain.model.device.toProfile
+import com.bagas.obrol.domain.repository.OwnProfileRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+
+class OwnProfileLocalRepository(private val ownProfileDataStore: DataStore<ProfileEntity>) : OwnProfileRepository {
+    override fun getProfileAsFlow(): Flow<Profile> {
+        return ownProfileDataStore.data.map { it.toProfile() }
+    }
+
+    override suspend fun getProfile(): Profile {
+        return ownProfileDataStore.data.first().toProfile()
+    }
+
+    override suspend fun setAccountId(accountId: Long) {
+        ownProfileDataStore.updateData { it.copy(accountId = accountId) }
+    }
+
+    override suspend fun setUpdateTimestamp(updateTimestamp: Long) {
+        ownProfileDataStore.updateData { it.copy(updateTimestamp = updateTimestamp) }
+    }
+
+    override suspend fun setUsername(username: String) {
+        ownProfileDataStore.updateData { it.copy(username = username) }
+    }
+
+    override suspend fun setImageFileName(imageFileName: String) {
+        ownProfileDataStore.updateData { it.copy(imageFileName = imageFileName) }
+    }
+}

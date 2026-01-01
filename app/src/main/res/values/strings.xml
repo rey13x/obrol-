@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Obrol+</string>
+    <string name="chat_screen">Chat</string>
+    <string name="call_screen">Call</string>
+    <string name="settings_screen">Settings</string>
+    <string name="info_screen">Info</string>
+    <string name="service_contact_title">Kontak Servis</string>
+    <string name="create_group">Buat Grup Baru</string>
+</resources>
