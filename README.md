@@ -24,10 +24,6 @@ Tujuan utama Obrol+ adalah untuk menyediakan solusi komunikasi yang andal saat k
 
 ## Fitur Utama
 
-<p align="center">
-  <img src="docs/fitur.jpg" alt="Fitur Utama Obrol+" width="600"/>
-</p>
-
 *   **Mengirim Pesan Teks:** Komunikasi teks yang cepat dan efisien.
 *   **Mengirim Media (Gambar/File):** Berbagi gambar atau dokumen penting dengan mudah.
 *   **Melakukan Panggilan Suara:** Komunikasi suara secara langsung antar perangkat.
@@ -87,12 +83,12 @@ Pastikan lingkungan pengembangan Anda memenuhi spesifikasi berikut. Ketidakcocok
 1.  **Clone Repositori**
     Buka terminal atau Git Bash, lalu jalankan perintah berikut:
     ```bash
-    git clone https://github.com/RaihaanBagas/obrol-plus.git
+    git clone https://github.com/rey13x/obrol-.git
     ```
 
 2.  **Buka Proyek di Android Studio**
     *   Buka Android Studio.
-    *   Pilih **File > Open**, lalu arahkan ke folder `obrol-plus` yang baru saja Anda clone.
+    *   Pilih **File > Open**, lalu arahkan ke folder `obrol+` yang baru saja Anda clone.
     *   Tunggu hingga Android Studio selesai mengindeks file.
 
 3.  **Konfigurasi Gradle JDK (Penting!)**
@@ -114,10 +110,6 @@ Pastikan lingkungan pengembangan Anda memenuhi spesifikasi berikut. Ketidakcocok
 
 ## Batasan Aplikasi
 
-<p align="center">
-  <img src="docs/batasan.jpg" alt="Batasan Aplikasi" width="600"/>
-</p>
-
 Harap dicatat bahwa Obrol+ memiliki beberapa batasan teknis:
 
 *   **Jarak Terbatas:** Efektif digunakan dalam jarak dekat, sekitar **10-20 meter**.
@@ -128,7 +120,7 @@ Harap dicatat bahwa Obrol+ memiliki beberapa batasan teknis:
 
 ## Dibuat Oleh
 
-**Raihaan Bagastiam Pratama**
+**Raihaan Bagastiam Pratama\n**
 **From SMKN 2 Kota Bekasi**
 
 ---
