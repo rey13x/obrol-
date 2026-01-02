@@ -33,6 +33,23 @@ android {
             )
         }
     }
+
+    applicationVariants.all { 
+        val variant = this
+        variant.outputs.all { 
+            val output = this
+            val project = "Obrol+"
+            // Jika varian adalah "release", nama file menjadi "Obrol+.apk"
+            // Jika tidak (misal: "debug"), nama file menjadi "Obrol+-debug.apk"
+            val newName = if (variant.name == "release") {
+                "${project}.apk"
+            } else {
+                "${project}-${variant.name}.apk"
+            }
+            (output as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName = newName
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
